@@ -1,14 +1,21 @@
 # Conversational Social Robot Utilizing LLMs
  Cal Poly SLO Mechanical Engineering Department Senior Project
+
  Sponsor: Dr. Eric Espinoza-Wade
+
  Code Author and Contributor: Mackenzie Goldman, EIT
 
 # Table of Contents
 [Background](#background)
+
 [Features](#features)
+
 [Computer Engineering Team's LLM](#computer-engineering-teams-llm)
+
 [Mechanical System](#mechanical-system)
+
 [Electrical System](#electrical-system)
+
 [User Guide](#user-guide)
 
 ## Background

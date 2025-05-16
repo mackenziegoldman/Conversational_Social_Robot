@@ -1,0 +1,8 @@
+Address:
+98D3:02:96A3FE
+
+Name of Signal:
+BentlyBot
+
+Password:
+2025

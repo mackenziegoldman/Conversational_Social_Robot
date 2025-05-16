@@ -23,12 +23,17 @@
 from pyb import Pin, UART
 from time import sleep_ms
 
+
+# Set up the enable pin for the Bluetooth module
+en_pin = Pin('A0', Pin.OUT)
+en_pin.high()  # Set EN high before UART init
+
 # User Editable Parameters
 baudrate = 115200
 stopbit  = 1
 parity   = 0
-pswd     = "mechaXX"
-name     = "mechaXX"
+pswd     ="2025"
+name     ="BentlyBot"
 
 # Allowable ranges
 al_baudrate = [9600, 19200, 38400, 57600,
@@ -49,6 +54,16 @@ if parity not in al_parity:
 # UART 1 Uses B6 and B7 by default
 ser = UART(1, 38400, timeout=1000)
 
+s = "AT\r\n"
+print("Testing Basic Communication")
+print(f"Sending command: {repr(s)}")
+ser.write(s)
+sleep_ms(500)
+response = ser.read()
+print(f"Raw Device Response: {repr(response)}")
+if response != b"OK\r\n":
+    raise Exception("Basic communication failed")
+
 input("Press enter to send configuration to Bluetooth Module\n")
 
 # # Reset Device
@@ -62,7 +77,17 @@ input("Press enter to send configuration to Bluetooth Module\n")
 #     raise Exception("Reset command not accepted")
 # sleep_ms(500)
 
+# Check the module’s firmware version
+s = "AT+ADDR?\r\n"
+print(f"Sending command: {repr(s)}")
+ser.write(s)
+sleep_ms(1000)
+response = ser.read()
+print(f"Module Address Response: {repr(response)}")
+
+
 # Rename device
+sleep_ms(1000)
 s = f"AT+NAME={name}\r\n"
 print("Renaming Device")
 print(f"Sending command: {repr(s)}")

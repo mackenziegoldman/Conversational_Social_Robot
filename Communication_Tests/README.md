@@ -6,12 +6,29 @@ The following code was used for testing and initialization purposes for both the
 UART_ was tested utilizing a loopback test in `main.py`. After UART_ was confirmed working, tests were performed between the Raspberry Pi and STM32 Nucleo boards to ensure communication. 
 
 ### Test description and results
+ Purpose: The purpose of this test is to ensure proper communication lines between the CPE team’s Raspberry Pi and the STM32 Nucleo to ensure flags in the code can be properly sent and received by each board and acted upon.
 
+ Loopback Test: Ensures UART 3 is receiving and transmitting data properly by connecting the transmitter line to the receiver line on the STM32 board.
+ ![alt text](image.png)
+ ![alt text](image-1.png)
+
+ Comms test between Raspberry Pi and STM32:
+ ![alt text](image-2.png)
+ ![alt text](image-3.png)
+ ![alt text](image-4.png)
+ *** The test failed dialogue on the STM’s serial monitor was in regard to the loopback test not the communication test between the Raspberry Pi and Nucleo
+ 
 
 ## Bluetooth
-The `BT_confugurator.py` program was used to configure the HC-05 Bluetooth module. The program changes the standard baudrate of the device to 11500, sets the name of the bluetooth device and the password. If necessary, the following code could be implemented in this program to reconfigure the STM32 Nucleo's pins for a non-standard UART pin connection between the board and the bluetooth module.
+The `BT_confugurator.py` program was used to configure the HC-05 Bluetooth module. The program changes the standard baudrate of the device to 11500, sets the name of the bluetooth device and the password. 
 
-<!-- ```
-insert code snippet here 
-```
--->
+![alt text](image-5.png)
+
+### Test description and results
+ Scope: This test validates the basic connection setup, configuration, and successful data transmission in both directions between an STM32 board and an Android phone via Bluetooth.
+
+ Results on Serial Monitor:
+ ![alt text](image-6.png)
+
+ Results on Phone:
+ ![alt text](image-7.png)

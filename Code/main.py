@@ -16,8 +16,13 @@ from comms_task import comms
 from sensor_task import sensor as IR_sensor
 from motion_task import motion_profiles
 
+class ButtonInterrupt(Exception):
+    pass
+
+button_pin = Pin('C3', Pin.IN, Pin.PULL_UP)
+
 class SystemInitializer:
-    def __init__(self, IR_sens, comms_state, ir_sensor_state, sensor_triggered, kill_message):
+    def __init__(self, IR_sens, comms_state, ir_sensor_state, sensor_triggered, kill_message, uart, bluetooth):
         """Initialization task which is run once at startup to set 
         up necessary components."""
         print("[Init] Initializing system...")
@@ -31,8 +36,9 @@ class SystemInitializer:
         self.ir_sensor_state = ir_sensor_state
         #self.motor_state = motor_state
         #self.servo_state = servo_state
-        self.bluetooth = UART(1, 115200, timeout=1000)  # Bluetooth UART
-        self.bt_state_pin = Pin('B14', Pin.IN)  # Replace 'X1' with the actual pin connected to the STATE pin
+        self.bluetooth = bluetooth  # Bluetooth UART
+        self.bt_state_pin = Pin('B14', Pin.IN)
+        self.uart = uart    
 
         # Set initial states
         self.comms_state.put(1)  # Set initial state to 1 (WAIT)
@@ -56,6 +62,9 @@ class SystemInitializer:
 
         # Wait for Bluetooth connection
         self.wait_for_bluetooth_connection()
+        
+        # Wait for RSPI to be ready
+        self.wait_for_rspi()
 
     def wait_for_bluetooth_connection(self):
         """Wait until a Bluetooth connection is established."""
@@ -66,15 +75,29 @@ class SystemInitializer:
 
         print("[Init] Bluetooth connected!")
 
-    def zero_encoder(self):
-        """Zero the encoder."""
-        self.encoder.zero()
-        print("[Init] Encoder zeroed.")
+    def wait_for_rspi(self):
+        """Wait until the RSPI is ready."""
+        print("[Init] Waiting for RSPI to be ready...")
+        while True:
+            line = self.uart.readline()
+            if line:
+                try:
+                    msg = line.decode().strip()
+                    if msg == 'IDLE':
+                        break
+                except Exception as e:
+                    print("UART decode error:", e)
+            print("Waiting for RSPI to be ready...")
+            pyb.delay(500)
+    # def zero_encoder(self):
+    #     """Zero the encoder."""
+    #     self.encoder.zero()
+    #     print("[Init] Encoder zeroed.")
 
-    def initialize_motor(self):
-        """Initialize the motor."""
-        self.motor.disable()
-        print("[Init] Motor initialized and disabled.")
+    # def initialize_motor(self):
+    #     """Initialize the motor."""
+    #     self.motor.disable()
+    #     print("[Init] Motor initialized and disabled.")
     
     def initialize_IR_sensor(self):
         """Initialize the IR sensor."""
@@ -83,10 +106,10 @@ class SystemInitializer:
         self.kill_message.put(0)  # Reset the KILL message flag
         print("[Init] IR sensor initialized and enabled.")
 
-    def initialize_servo(self):
-        """Initialize the servo."""
-        #self.servo.enable()
-        print("[Init] Servo initialized and disabled.")
+    # def initialize_servo(self):
+    #     """Initialize the servo."""
+    #     #self.servo.enable()
+    #     print("[Init] Servo initialized and disabled.")
 
 
 if __name__ == "__main__":
@@ -94,9 +117,10 @@ if __name__ == "__main__":
     #encoder = Encoder(3, 'A6', 'A7')
     #motor = Motor(4, 1,'B6', 'C8', 'C7')
     #servo = Servo(2, 'A15')
-    #controller = PIDController(10, 0, 0.0002)
+    #controller = PIDController(10, 2, 0.02)
     IR_sens = MOT2002_IR('B1')
-
+    uart = UART(3, baudrate=9600,timeout=1)
+    bluetooth = UART(1, 115200, timeout=1000)
 
 
     # Create a share and a queue to test function and diagnostic printouts
@@ -110,47 +134,43 @@ if __name__ == "__main__":
                                         name="kill_message")  # KILL message flag
     comm_message = task_share.Queue('h', 20, thread_protect=False, 
                                         overwrite=False, name="comm_message")
-    motion_profile = task_share.Share('h', thread_protect=False,
-                                        name="motion_profile") 
+    # motion_profile = task_share.Share('h', thread_protect=False,
+    #                                     name="motion_profile") 
 
     comms_state = task_share.Share('h', thread_protect=False,
                                         name="comms_state") 
     ir_sensor_state = task_share.Share('h', thread_protect=False,
                                         name="ir_sensor_state") 
-    motion_profile_state = task_share.Share('h', thread_protect=False,
-                                        name="motion_profile_state")                                
+    # motion_profile_state = task_share.Share('h', thread_protect=False,
+    #                                     name="motion_profile_state")                                
 
 # Initialize the system
-    initializer = SystemInitializer(IR_sens, comms_state, ir_sensor_state, sensor_triggered, kill_message)
+    initializer = SystemInitializer(IR_sens, comms_state, ir_sensor_state, sensor_triggered, kill_message, uart, bluetooth)
 
 # Create the tasks.
-    # motor_task = cotask.Task(motor, name=" motor", priority=3, 
-    #                     period=10, profile=True, trace=False, 
-    #                     shares=(R_effort_share,R_pos_queue, R_vel_queue,
-    #                     data_collection_complete,))
 
-    comms_task = cotask.Task(comms, name="comms", priority=2, period=750,
+    comms_task = cotask.Task(comms, name="comms", priority=1, period=50,
                             profile=True, trace=False, 
-                            shares=(comms_state, comm_message, kill_message, initializer.bluetooth)) 
+                            shares=(comms_state, comm_message, kill_message, 
+                                    bluetooth, uart, sensor_triggered)) 
 
     IR_sensor_task = cotask.Task(IR_sensor, name="IR_sensor", 
-                         priority=2, period=10, profile=True, trace=False,
+                         priority=2, period=100, profile=True, trace=False,
                          shares = (sensor_triggered, ir_sensor_state, 
                                    IR_sens, kill_message, comm_message))
     # motion_profile_task = cotask.Task(motion_profiles, name="motion_profiles",
-    #                      priority=2, period=10, profile=True, trace=False,
-    #                      shares = (motion_profile_state, motion_profile, kill_message, servo))
+    #                      priority=2, period=22, profile=True, trace=False,
+    #                      shares = (motion_profile_state, motion_profile, kill_message, servo, comm_message))
     
-    # mot_controller_task = cotask.Task(mot_controller, name="mot_controller", 
-    #                     priority=2, period=10, profile=True, trace=False,
-    #                     shares = (line_position_queue,R_effort_share,
-    #                     L_effort_share))
 
     cotask.task_list.append(comms_task)
     #cotask.task_list.append(motor_task)
     cotask.task_list.append(IR_sensor_task)
     # cotask.task_list.append(mot_controller_task)
     
+    
+
+
     # Run the memory garbage collector to ensure memory is as defragmented as
     # possible before the real-time scheduler is started
     gc.collect()
@@ -158,14 +178,24 @@ if __name__ == "__main__":
     # Run the scheduler with the chosen scheduling algorithm. Quit if ^C pressed
     while True:
         try:
+            if button_pin.value() == 0:  # Active-low: pressed when 0
+                raise ButtonInterrupt
             cotask.task_list.pri_sched()
         except KeyboardInterrupt:
-            #motor.disable()
-            #servo.disable()
+            uart.write('KILL'.encode())
+            bluetooth.write('8'.encode())
             IR_sens.disable()
             print("[Main] IR sensor disabled.")
-            print("[Main] Motors disabled.")
+            #print("[Main] Motors disabled.")
             print("[Main] Exiting...")
+            break
+        except ButtonInterrupt:
+            IR_sens.disable()
+            uart.write('KILL'.encode())
+            bluetooth.write('8'.encode())
+            print("[Main] IR sensor disabled.")
+            #print("[Main] Motors disabled.")
+            print("[Main] Emergency stop: Button pressed. Exiting...")
             break
 
     # Print a table of task data and a table of shared information data
@@ -174,52 +204,4 @@ if __name__ == "__main__":
     print(comms_task.get_trace())
     print('')
 
-
-
-    #E-stop needed for:
-
-    # Motor errors from fault pin on motor driver
-#     DRV8838 Fault Detection:
-#       Use the FAULT pin to detect overcurrent (1.8A), thermal shutdown, or undervoltage conditions.
-#       Monitor the FAULT pin in your motor class or task.
-        # class Motor:
-        #     def __init__(self, pin_enable, pin_fault, min_position, max_position):
-        #         self.enable_pin = pyb.Pin(pin_enable, pyb.Pin.OUT)
-        #         self.fault_pin = pyb.Pin(pin_fault, pyb.Pin.IN, pyb.Pin.PULL_UP)  # Input with pull-up
-        #         self.min_position = min_position
-        #         self.max_position = max_position
-        #         self.current_position = 0  # Placeholder for motor position (e.g., from encoder)
-
-        #     def has_fault(self):
-        #         """Check if the motor driver reports a fault."""
-        #         return self.fault_pin.value() == 0  # FAULT pin is low when a fault occurs
-
-        #     def is_out_of_bounds(self):
-        #         """Check if the motor's position is out of bounds."""
-        #         return self.current_position < self.min_position or self.current_position > self.max_position
-        # if state == 1:
-        #     # Check for motor errors
-        #     motor_fault = motor.has_fault()  # Check for fault signals
-        #     motor_out_of_bounds = motor.is_out_of_bounds()  # Check for out-of-bounds movement
-
-        #     # If any error is detected, transition to state 7
-        #     if motor_fault or motor_out_of_bounds:
-        #         print("Motor error detected! Transitioning to Kill Pose (state 7).")
-        #         motion_profile_state.put(7)  # Transition to Kill Pose
-
-        # elif state == 7:
-        #     # Kill pose (E-stop situation only), tilt head down and turn off motors
-        #     print("State 7: Emergency stop activated. Shutting down motors and moving to Kill Pose.")
-
-        #     # Disable motors and servo
-        #     motor.disable()
-        #     servo.write_angle(0)  # Move servo to Kill Pose (e.g., head tilted down)
-        #     pyb.Pin('POWER_PIN', pyb.Pin.OUT).low()  # Replace 'POWER_PIN' with the actual pin controlling power
-
-        #     print("Motors and servo disabled. System in Kill Pose.")
-        #     yield state
-
-
-    # Loss of communication with Bluetooth
-    # Out of bounds positions for the servo or motor
     

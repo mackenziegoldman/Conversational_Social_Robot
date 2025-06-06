@@ -32,11 +32,15 @@ def sensor(shares):
                         no_motion_timer = pyb.millis()
                     elif pyb.elapsed_millis(no_motion_timer) > 5000:  # 5-second timeout
                         comm_message.put(2)  # Send KILL message
+                        print("No motion detected for 5 seconds, sending KILL message.")
                         sensor_triggered.put(0)  # Reset the sensor trigger flag
                         person_present = False
                         no_motion_timer = None  # Clear the timer
                     else:
                         ir_sensor_state.put(1)
+                        print("No motion detected, waiting...")
+                        IR_sens.read_raw()  # Read the sensor to keep it active
+                        print("Raw value", IR_sens.read_raw())
 
             elif sensor_reading == 1:  # Motion detected
                 if not person_present:  # Motion detected for the first time
@@ -57,7 +61,7 @@ def sensor(shares):
                 print("Comm message put in queue")
                 sensor_triggered.put(1)
                 comm_message.put(1)  # Send START message
-                print(f"[Comms Task] Queue size: {comm_message.num_in()}")
+                print(f"[Sensor Task] Queue size: {comm_message.num_in()}")
                 ir_sensor_state.put(1)   
             yield state
         
@@ -65,4 +69,6 @@ def sensor(shares):
             sensor_triggered.put(0)
             kill_message.put(0)
             ir_sensor_state.put(1)
+            person_present = False  # Reset the person presence flag
+            print("KILL message received, resetting sensor state.")
             yield state

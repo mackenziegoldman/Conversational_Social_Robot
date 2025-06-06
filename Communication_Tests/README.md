@@ -9,26 +9,34 @@ UART_ was tested utilizing a loopback test in `main.py`. After UART_ was confirm
  Purpose: The purpose of this test is to ensure proper communication lines between the CPE team’s Raspberry Pi and the STM32 Nucleo to ensure flags in the code can be properly sent and received by each board and acted upon.
 
  Loopback Test: Ensures UART 3 is receiving and transmitting data properly by connecting the transmitter line to the receiver line on the STM32 board.
- ![alt text](image.png)
- ![alt text](image-1.png)
+ 
+ ![alt text](Communication_Tests/images/image.png)
+
+ ![alt text](Communication_Tests/images/images/image-1.png)
 
  Comms test between Raspberry Pi and STM32:
- ![alt text](image-2.png)
- ![alt text](image-3.png)
- ![alt text](image-4.png)
+
+ ![alt text](Communication_Tests/images/image-2.png)
+
+ ![alt text](Communication_Tests/images/image-3.png)
+ 
+ ![alt text](Communication_Tests/images/image-4.png)
+
  *** The test failed dialogue on the STM’s serial monitor was in regard to the loopback test not the communication test between the Raspberry Pi and Nucleo
  
 
 ## Bluetooth
 The `BT_confugurator.py` program was used to configure the HC-05 Bluetooth module. The program changes the standard baudrate of the device to 11500, sets the name of the bluetooth device and the password. 
 
-![alt text](image-5.png)
+![alt text](Communication_Tests/images/image-5.png)
 
 ### Test description and results
  Scope: This test validates the basic connection setup, configuration, and successful data transmission in both directions between an STM32 board and an Android phone via Bluetooth.
 
  Results on Serial Monitor:
- ![alt text](image-6.png)
+
+ ![alt text](Communication_Tests/images/image-6.png)
 
  Results on Phone:
- ![alt text](image-7.png)
+
+ ![alt text](Communication_Tests/images/image-7.png)

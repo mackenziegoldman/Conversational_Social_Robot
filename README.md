@@ -7,19 +7,19 @@
 
 # Table of Contents
 
-[Background](#background)  
-[Challenge and Goals](#challenge-and-goals)  
-[Features](#features)  
-[Mechanical System](#mechanical-system)  
-[Electrical System](#electrical-system)  
+- [Background](#background)  
+- [Challenge and Goals](#challenge-and-goals)  
+- [Features](#features)  
+- [Mechanical System](#mechanical-system)  
+- [Electrical System](#electrical-system)  
   - [Overview](#overview)  
   - [Breakdown](#breakdown)  
   - [Electrical Schematic](#electrical-schematic)  
-[User Guide](#user-guide)  
+- [User Guide](#user-guide)  
   - [Initial Setup](#initial-setup)  
   - [Using the Bently Bot](#using-the-bently-bot)  
   - [Troubleshooting the software](#troubleshooting-the-software)  
-[Future Work and Known Issues](#future-work-and-known-issues)
+- [Future Work and Known Issues](#future-work-and-known-issues)
 
 ## Background
 <!--insert info about senior project at Cal Poly and specific things that were looked for within specific senior project (look at initial doc we were given adn presented by wade-->
@@ -53,11 +53,11 @@ Goals:
 
 The mechanical system is described in detail in the FDR report. The following figure shows the CAD model.
 
-![alt text](image-2.png)
+![alt text](images/image-2.png)
 
 The final robot is shown below.
 
-![alt text](image-1.png)
+![alt text](images/image-1.png)
 
 
 ## Electrical System
@@ -76,8 +76,9 @@ Hardware:
 ### Overview
 To support AI-based conversation, a system consisting of a STM32 L476RG Nucleo microcontroller, a Raspberry Pi 5 single board computer, and a Motorola Android phone was developed. Figure 1 shows the distribution of tasks for the different hardware systems.
 
- ![alt text](image-3.png)
-Figure 1. Task Distribution
+ ![alt text](images/image-3.png)
+ 
+ Figure 1. Task Distribution
 
 The Raspberry Pi 5 was programmed and developed by the computer engineering (CPE) capstone team. The CPE capstone team trained the Google Gemini AI model to only respond to prompts and conversations about research at Cal Poly. This trained model as well as a Text-to-Speech, Speech-to-Text, speaker, and microphone were programmed onto the Raspberry Pi 5. The STM32 Nucleo board acts as the central control board interfacing between the Raspberry Pi 5 and all other systems on the robot such as the sensor, motors, and Android phone. It uses system level multitasking with each task centered around different finite state machines. The finite state machines for each task can be found in Appendix G. The STM32 microcontroller communicates with the Raspberry Pi 5 via a wired UART connection and with the Motorola Android phone through Bluetooth using a HC-05 Bluetooth module. The Android phone includes the Kodular app designed to change the robot’s faces based on different emotive cues. This synchronized system allows the robot to behave in a socially intuitive manner. 
 
@@ -85,7 +86,8 @@ The Raspberry Pi 5 was programmed and developed by the computer engineering (CPE
 
 The overall control system was centered on the STM32 L476RG Nucleo microcontroller. This board was mounted to a Shoe of Brian PCB which acted as an interpreter. Natively, the STM32 Nucleo board runs C++, but the addition of the Shoe of Brian PCB allowed MicroPython firmware to be installed on the board and Python scripts to be run from the standard libraries. Figure 2 shows a simplified wiring diagram of the system currently implemented in the robot.
 
- ![alt text](image-5.png)
+ ![alt text](images/image-5.png)
+
 Figure 2. Simplified Wiring Diagram
 
 A micro servo controlled the head nodding mechanism. The micro servo did not have external encoder feedback data which complicated the control system. To control the range of motion of the head nod mechanism, appropriate pulse width modulation (PWM) limits were identified, and a calculated estimate of the corresponding angle were determined. As the servo motor did not have external encoder feedback, out of range motions were difficult to limit and were based on an open loop control system. Additionally, homing upon initialization of the servo motor was impossible to achieve. Homing of the servo motor would have taken the current position of the servo motor and moved it to a prespecified angle following a 5th order spline motion upon startup of the program therefore eliminating the jerk and jump of the servo motor. 
@@ -94,7 +96,8 @@ A brushed DC motor controlled the head rotation mechanism. A TI DRV8838 utilizin
 
 A 10-meter IR sensor mounted in the robot’s chair detected visitor motion through analog voltage feedback. Communication between the two boards and the phone was established through two different methods. The Raspberry Pi 5 and STM32 Nucleo boards communicated over a wired serial UART connection. Start and kill messages were transmitted between the two boards depending on the required state. Additionally, emotion flags such as “HAPPY” and “TALKING” were transmitted to the STM32 board. These emotion flags were determined by different states in the Raspberry Pi 5’s programming. The phone and STM32 board communicate wirelessly through Bluetooth. Since the STM32 board does not have built-in Bluetooth capabilities, a HC-05 Bluetooth module was wired through UART to the board to provide full-duplex. The STM32 board sends the emotion flags from the Raspberry Pi 5 to the phone. The phone, which served as the robot’s face, ran a Kodular-based application responsible for expressing the robot’s emotions. The different communication methods were tested, and the results and procedures are shown in Appendix D.
 
- ![alt text](image-6.png)
+ ![alt text](images/image-6.png)
+
 Figure 3. Communication Testing 
 
 An emergency stop button was incorporated into the design. Typical E-stop design eliminates all power to the system cutting off all movement and operation. It also includes a button that once pressed needs to be twisted and lifted to reset and provide power to the system. It is important to note that E-stop buttons are included in any moving machine. The E-stop designed for this system does not follow these standards on the account that the robot no longer has a movement function. If movement was restored to the robot, a traditional E-stop would need to be implemented. The current E-stop sends the kill signal to both the phone and Raspberry Pi 5 before stopping the STM32’s main program as an interrupt. The debounce on the button was modified to mimic a traditional E-stop. Essentially, to restart the program and reinstate functionality, the E-stop button needs to be pressed a second time before restarting the STM32’s main program.
@@ -103,7 +106,7 @@ The STM32 board and the servo motor were powered by 2 buck converters. These wer
 
 ### Electrical Schematic
 
-![alt text](Wiring_Diagram.png)
+![alt text](images/Wiring_Diagram.png)
 
 ## User Guide
 
@@ -111,18 +114,24 @@ The STM32 board and the servo motor were powered by 2 buck converters. These wer
 > Code structures and programs in the repository are solely for the STM32 L476RG Nucleo board. The documentation for the Raspberry Pi 5 code and Kodular program are stored elsewhere.
 
 Code Hierarchy:
-![Code Hierarchy](Program_Hierarchy.drawio.png)
 
-![Behavioural State Machine](System_state_machine.drawio.png)
+![Code Hierarchy](images/Program_Hierarchy.drawio.png)
+
+![Behavioural State Machine](images/System_state_machine.drawio.png)
+
 Behavioural State Machine
 
 Each task has it's own Finite State Machine.
-![Comms Task State Machine](Comms_task.drawio.png)
-![IR Sensor Task State Machine](Prox_Sensor.drawio.png)
-![Motion Task State Machine](Motion_task.png)
+
+![Comms Task State Machine](images/Comms_task.drawio.png)
+
+![IR Sensor Task State Machine](images/Prox_Sensor.drawio.png)
+
+![Motion Task State Machine](images/Motion_task.png)
 
 Task Diagram
-![alt text](image-4.png) 
+
+![alt text](images/image-4.png) 
 
 To use the repository, download all python scripts from the Code file and push them to the STM32 board.
 
@@ -133,9 +142,13 @@ To use the repository, download all python scripts from the Code file and push t
 4.	Open a terminal on the Raspberry Pi and run “source env/bin/activate”
 5.	Run “python3 llmrobot.py” to start the FSM.
 6.	Unlock the phone and open the “Bently Bot” app with the icon below.
- ![alt text](image-7.png)
+
+ ![alt text](images/image-7.png)
+
 7.	Click the grey “connect” button on the screen to connect to Bluetooth
- ![alt text](image-8.png)
+
+ ![alt text](images/image-8.png)
+
 8.	Once connected, the robot is ready to interact!
 
 ### Using the Bently Bot
@@ -143,7 +156,7 @@ To use the repository, download all python scripts from the Code file and push t
 1.	Carefully approach the robot so that you are within a 10-foot radius of its front side
 2.	If sensors are properly functioning, you should see the facial features of the robot change from “resting” to “smile.” This should also trigger the head nod function of the robot as it lifts its head from a resting position.
 
-![alt text](image-9.png)
+![alt text](images/image-9.png)
 
 **Speaking to the Bently Bot**
 1.	When asking the robot a question, limit the topics of conversation to Cal Poly or the Bently Center, as any inappropriate questions will automatically be dismissed by the robot
@@ -170,15 +183,21 @@ If the phone is unable to connect to the HC-05 Bluetooth module named “BentlyB
 4.	Pair with the “BentlyBot” signal. If the connection is made, the HC-05 Bluetooth module should blink about two blinks every two seconds (see image with yellow highlight for location of LED on the HC-05).
 5.	If the Bently Bot app connects to Bluetooth, no further actions are necessary. 
 6.	If the Bently Bot app does not connect to Bluetooth or the HC-05 Bluetooth module is blinking rapidly or not at all, a full reset of the HC-05 device is likely necessary.
- ![alt text](image-10.png)
+
+ ![alt text](images/image-10.png)
+
 7.	To reset the HC-05 device, download the BT_configurator.py file and rename it main.py.
 8.	Either disconnect all peripherals except the HC-05 or use a STM32 Nucleo with nothing else plugged into it.
 9.	Disconnect the power to the Nucleo and HC-05.
 10.	Using a jumper wire connect the “EN” pin on the HC-05 to pin “PA0” on the Nucleo.
 11.	While holding down the enable button (see image below) on the HC-05, connect power to the Nucleo and HC-05. Continue holding down the enable button until you get a very slow blink on the Bluetooth module’s LED (about 2 seconds on / 2 seconds off).
- ![alt text](image-11.png)
+
+ ![alt text](images/image-11.png)
+
 12.	Transfer the BT_configurator.py file now named main.py onto the Nucleo and run the code from PuTTY to send the configuration to the module. If everything worked, you should see this on your serial terminal:
- ![alt text](image-12.png)
+
+ ![alt text](images/image-12.png)
+
 13.	If you do not see this on your serial terminal, you should try using a new HC-05 Bluetooth module and repeating the reset steps.
 14.	Disconnect power to the Nucleo and HC-05 device and disconnect the jumper wire connecting the “EN” pin to “PA0”.
 15.	Reflash main.py onto the board and rerun the program. The phone should now be able to connect to the Bluetooth signal.
@@ -198,20 +217,27 @@ Checking Wired Connections:
 
 Resetting the STM32 Nucleo:
 To reset the STM32 Nucleo board, press the black “Reset” button on the board as shown highlighted in yellow.
- ![alt text](image-13.png)
+
+ ![alt text](images/image-13.png)
+
 If the STM32 Nucleo device is reset or a new device is used, the following steps will allow python to be run through the Shoe of Brian and on the STM32 board.
 1.	Download the firmware.bin file from Github.
 2.	Install the STM Cube Programmer.
 3.	Unplug the STM32 Nucleo from all power sources.
 4.	Move the jumper named JP5 from the “E5V” to the “U5V” position. That is, remove the small black rectangular shorting block and move it over one pin and reinsert it to short out the middle pin with “U5V” instead of “E5V”.
-![alt text](image-15.png)
+
+![alt text](images/image-15.png)
+
 5.	Connect the Nucleo to your computer with the ST-Link USB port, not the regular USB port on the Shoe of Brian.
 6.	Open the STM Cube Programmer and select the firmware.bin file.
 7.	Press the “connect” button on the top right corner of the program. If this fails to connect, its possible the board is damaged, or you may have the jumper not set to “U5V”.
- ![alt text](image-16.png)
+
+ ![alt text](images/image-16.png)
+
 8.	Occasionally, software running on the Nucleo can lock out the ST-Link. If you think that may be the case, then attempt to connect several times while holding down the black reset button, releasing it approximately as you click on connect in the program.
 9.	Once connected, press the button near the bottom left corner of the STM Cube Programmer shaped like an eraser to perform a “full chip erase”. If this step fails, your Nucleo is most likely damaged.
-![alt text](image-17.png)
+
+![alt text](images/image-17.png)
  
 10.	 If the chip erase is successful, press the “download” button to flash the interpreter firmware.
 11.	Once the programming is completed successfully, press the “disconnect” button in the programmer utility.
@@ -225,7 +251,9 @@ If the STM32 Nucleo device is reset or a new device is used, the following steps
 It may be possible that the STM32 Nucleo board is damaged. 
 1.	Visually inspect the Nucleo board for physical damage.
 2.	If the ST-Link (the yellow highlighted part of the board) if broken off or partially snapped off the board, the board is damaged, and a replacement will need to be ordered. Follow the directions for resetting the Nucleo to prepare the new board.
-![alt text](image-18.png)  
+
+![alt text](images/image-18.png)  
+
 3.	Look for any obvious signs of damage like burn marks, discoloration, or even physical damage to the chip. Also inspect other components like resistors and inductors. 
 4.	If any burn marks or discoloration are present, the board might be fried, and a replacement board will be needed.
 
@@ -242,7 +270,8 @@ Over the course of 3 quarters, a humanoid robot capable of holding real-time con
 
 A solution the team offers to the issue of the servo motor stalling would be to integrate the Hitec HS-788HB servo motor seen in Figure 1 with a no-load torque of 153 oz-in (9.6 lb-in) more than fulfilling the requirement for this project. 
 
- ![alt text](image-19.png)
+ ![alt text](images/image-19.png)
+
 Figure 1. New Servo Motor
 
 This servo still does not have an external encoder feedback signal. To properly track faces as detailed below, creating a closed loop control system with either a PID controller on an external encoder or an estimator controller would be vital to develop. To implement the head rotation function, new plates could be waterjet with a higher tolerance to ensure the press fit is possible. These recommendations would allow the system to move.

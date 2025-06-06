@@ -12,7 +12,7 @@ UART_ was tested utilizing a loopback test in `main.py`. After UART_ was confirm
  
  ![alt text](images/image.png)
 
- ![alt text](images/images/image-1.png)
+ ![alt text](images/image-1.png)
 
  Comms test between Raspberry Pi and STM32:
 

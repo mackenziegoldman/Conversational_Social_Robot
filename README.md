@@ -80,7 +80,7 @@ To support AI-based conversation, a system consisting of a STM32 L476RG Nucleo m
  
  Figure 1. Task Distribution
 
-The Raspberry Pi 5 was programmed and developed by the computer engineering (CPE) capstone team. The CPE capstone team trained the Google Gemini AI model to only respond to prompts and conversations about research at Cal Poly. This trained model as well as a Text-to-Speech, Speech-to-Text, speaker, and microphone were programmed onto the Raspberry Pi 5. The STM32 Nucleo board acts as the central control board interfacing between the Raspberry Pi 5 and all other systems on the robot such as the sensor, motors, and Android phone. It uses system level multitasking with each task centered around different finite state machines. The finite state machines for each task can be found in Appendix G. The STM32 microcontroller communicates with the Raspberry Pi 5 via a wired UART connection and with the Motorola Android phone through Bluetooth using a HC-05 Bluetooth module. The Android phone includes the Kodular app designed to change the robot’s faces based on different emotive cues. This synchronized system allows the robot to behave in a socially intuitive manner. 
+The Raspberry Pi 5 was programmed and developed by the computer engineering (CPE) capstone team. The CPE capstone team trained the Google Gemini AI model to only respond to prompts and conversations about research at Cal Poly. This trained model as well as a Text-to-Speech, Speech-to-Text, speaker, and microphone were programmed onto the Raspberry Pi 5. The STM32 Nucleo board acts as the central control board interfacing between the Raspberry Pi 5 and all other systems on the robot such as the sensor, motors, and Android phone. It uses system level multitasking with each task centered around different finite state machines. The finite state machines for each task can be found in the [User Guide](#user-guide). The STM32 microcontroller communicates with the Raspberry Pi 5 via a wired UART connection and with the Motorola Android phone through Bluetooth using a HC-05 Bluetooth module. The Android phone includes the Kodular app designed to change the robot’s faces based on different emotive cues. This synchronized system allows the robot to behave in a socially intuitive manner. 
 
 ### Breakdown
 
@@ -92,9 +92,9 @@ Figure 2. Simplified Wiring Diagram
 
 A micro servo controlled the head nodding mechanism. The micro servo did not have external encoder feedback data which complicated the control system. To control the range of motion of the head nod mechanism, appropriate pulse width modulation (PWM) limits were identified, and a calculated estimate of the corresponding angle were determined. As the servo motor did not have external encoder feedback, out of range motions were difficult to limit and were based on an open loop control system. Additionally, homing upon initialization of the servo motor was impossible to achieve. Homing of the servo motor would have taken the current position of the servo motor and moved it to a prespecified angle following a 5th order spline motion upon startup of the program therefore eliminating the jerk and jump of the servo motor. 
 
-A brushed DC motor controlled the head rotation mechanism. A TI DRV8838 utilizing a tiny H-bridge motor driver integrated circuit allowed the DC motor to be controlled by the STM32 Nucleo’s PWM control signal. The DC motor had an external encoder allowing for a closed loop control system to be developed based on the parameterization of the motor found in Appendix D. A PID controller was used to ensure the DC motor did not overshoot and move out of the specified range of motion.
+A brushed DC motor controlled the head rotation mechanism. A TI DRV8838 utilizing a tiny H-bridge motor driver integrated circuit allowed the DC motor to be controlled by the STM32 Nucleo’s PWM control signal. The DC motor had an external encoder allowing for a closed loop control system to be developed based on the parameterization of the motor. A PID controller was used to ensure the DC motor did not overshoot and move out of the specified range of motion.
 
-A 10-meter IR sensor mounted in the robot’s chair detected visitor motion through analog voltage feedback. Communication between the two boards and the phone was established through two different methods. The Raspberry Pi 5 and STM32 Nucleo boards communicated over a wired serial UART connection. Start and kill messages were transmitted between the two boards depending on the required state. Additionally, emotion flags such as “HAPPY” and “TALKING” were transmitted to the STM32 board. These emotion flags were determined by different states in the Raspberry Pi 5’s programming. The phone and STM32 board communicate wirelessly through Bluetooth. Since the STM32 board does not have built-in Bluetooth capabilities, a HC-05 Bluetooth module was wired through UART to the board to provide full-duplex. The STM32 board sends the emotion flags from the Raspberry Pi 5 to the phone. The phone, which served as the robot’s face, ran a Kodular-based application responsible for expressing the robot’s emotions. The different communication methods were tested, and the results and procedures are shown in Appendix D.
+A 10-meter IR sensor mounted in the robot’s chair detected visitor motion through analog voltage feedback. Communication between the two boards and the phone was established through two different methods. The Raspberry Pi 5 and STM32 Nucleo boards communicated over a wired serial UART connection. Start and kill messages were transmitted between the two boards depending on the required state. Additionally, emotion flags such as “HAPPY” and “TALKING” were transmitted to the STM32 board. These emotion flags were determined by different states in the Raspberry Pi 5’s programming. The phone and STM32 board communicate wirelessly through Bluetooth. Since the STM32 board does not have built-in Bluetooth capabilities, a HC-05 Bluetooth module was wired through UART to the board to provide full-duplex. The STM32 board sends the emotion flags from the Raspberry Pi 5 to the phone. The phone, which served as the robot’s face, ran a Kodular-based application responsible for expressing the robot’s emotions. The different communication methods were tested, and the results and procedures are shown in [Communication Tests](https://github.com/mackenziegoldman/Conversational_Social_Robot/tree/b5b6a51f593c675a47a0a3a8c759cd55b9d532d5/Communication_Tests).
 
  ![alt text](images/image-6.png)
 
@@ -125,9 +125,15 @@ Each task has it's own Finite State Machine.
 
 ![Comms Task State Machine](images/Comms_task.drawio.png)
 
+Comms Task State Machine
+
 ![IR Sensor Task State Machine](images/Prox_Sensor.drawio.png)
 
+IR Sensor Task State Machine
+
 ![Motion Task State Machine](images/Motion_task.png)
+
+Motion Task State Machine
 
 Task Diagram
 
@@ -175,6 +181,7 @@ To use the repository, download all python scripts from the Code file and push t
 ### Troubleshooting the software
 
 **Troubleshooting Bluetooth:** 
+
 If the phone is unable to connect to the HC-05 Bluetooth module named “BentlyBot”, it is likely the Bluetooth module needs to reconnect to the phone’s settings or in worst case, the module needs to be reset.
 
 1.	To reconnect the phone’s settings to the “BentlyBot” Bluetooth signal, go into the phones settings application and find the Bluetooth settings.
@@ -203,6 +210,7 @@ If the phone is unable to connect to the HC-05 Bluetooth module named “BentlyB
 15.	Reflash main.py onto the board and rerun the program. The phone should now be able to connect to the Bluetooth signal.
 
 **Troubleshooting Code:** 
+
 If all other aspects of the Bently Bot have been troubleshooted and the problem persists, first check the wire connections as described below, then reset the STM32 Nucleo. 
 
 Checking Wired Connections:
@@ -215,7 +223,8 @@ Checking Wired Connections:
     a.	If wires are consistently coming loose from the breadboard, a proto board may be substituted in for the breadboard and the wires soldered on.
 6.	Follow each wire up through its path checking for any damage in the wire. Wires may be connected to another set of wires through heat shrink tubing. The heat shrink tubing is a measure to prevent wires from separating. If damaged, replace wire and heat shrink tubing.
 
-Resetting the STM32 Nucleo:
+**Resetting the STM32 Nucleo:**
+
 To reset the STM32 Nucleo board, press the black “Reset” button on the board as shown highlighted in yellow.
 
  ![alt text](images/image-13.png)
@@ -248,6 +257,7 @@ If the STM32 Nucleo device is reset or a new device is used, the following steps
 
 
 **Further Troubleshooting:**
+
 It may be possible that the STM32 Nucleo board is damaged. 
 1.	Visually inspect the Nucleo board for physical damage.
 2.	If the ST-Link (the yellow highlighted part of the board) if broken off or partially snapped off the board, the board is damaged, and a replacement will need to be ordered. Follow the directions for resetting the Nucleo to prepare the new board.
@@ -276,7 +286,7 @@ Figure 1. New Servo Motor
 
 This servo still does not have an external encoder feedback signal. To properly track faces as detailed below, creating a closed loop control system with either a PID controller on an external encoder or an estimator controller would be vital to develop. To implement the head rotation function, new plates could be waterjet with a higher tolerance to ensure the press fit is possible. These recommendations would allow the system to move.
 
-To allow the robot to track visitors’ faces and move to look at them, a new sensor would need to be added to the system. A thermal infrared sensor mounted to the robot’s head is recommended, specifically the MLX90640 thermal infrared camera. This sensor returns an array of 768 individual infrared temperature readings over I2C. A code class created by Dr. JR Ridgely pixelizes the data creating a thermal image. Since the human head produces the most heat, a person’s head should show up clearly in this thermal image. The centroid of the pixels of the visitor’s head could easily be calculated. Additionally, since the sensor would be mounted to the moving head of the robot, the robot could be controlled to move to align the centroid of a visitor’s head to the center pixel of the robot in real time using inverse kinematics and motion projection. The code class and library are detailed further in the Future_Works_MLX_Cam folder.
+To allow the robot to track visitors’ faces and move to look at them, a new sensor would need to be added to the system. A thermal infrared sensor mounted to the robot’s head is recommended, specifically the MLX90640 thermal infrared camera. This sensor returns an array of 768 individual infrared temperature readings over I2C. A code class created by Dr. JR Ridgely pixelizes the data creating a thermal image. Since the human head produces the most heat, a person’s head should show up clearly in this thermal image. The centroid of the pixels of the visitor’s head could easily be calculated. Additionally, since the sensor would be mounted to the moving head of the robot, the robot could be controlled to move to align the centroid of a visitor’s head to the center pixel of the robot in real time using inverse kinematics and motion projection. The code class and library are detailed further in the [Future_Works_MLX_Cam](https://github.com/mackenziegoldman/Conversational_Social_Robot/tree/b5b6a51f593c675a47a0a3a8c759cd55b9d532d5/Future_Works_MLX_Cam) folder.
 
 When integrating the Raspberry Pi 5 board with the STM32 board, a few issues were determined. An extra wire on the Raspberry Pi 5 board is soldered to the board. This wire does not plug into anything, but it is critical that this wire is always grounded to the power source. If desired, the wire could also be desoldered from the board. If this wire is not removed or grounded, it causes immense electromagnetic interference in the UART communication line as well as the speaker. Since the wire sits between the transmitter and receiver UART wires, it acts as an active antenna amplifying any noise in the system. This causes crackling in the speaker and “garbage” data to be transmitted to the STM32 board. The noise in the system without this wire is limited, but if additional buck converters were added to the system, electromagnetic interference (EMI) would increase as well. If the EMI was great enough, a Faraday cage may be needed to prevent the noise from traveling into the system. 
 

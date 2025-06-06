@@ -1,6 +1,6 @@
 # Implementing the MLX90640 Thermal Infrared Camera
 
-![alt text](images/4407-01.jpg)
+![alt text](../images/4407-01.jpg)
 
 [MLX90640 Thermal Infrared Camera](https://www.adafruit.com/product/4407?srsltid=AfmBOopXb30Go0bubMpvIDiZCzZyr46Ge3ta_hf_qWBkuULyXO7aMHXZ)
 
